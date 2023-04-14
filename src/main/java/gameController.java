@@ -11,6 +11,7 @@ import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
 
 import java.io.IOException;
+import java.util.Random;
 
 public class gameController {
     @FXML
@@ -154,6 +155,7 @@ public class gameController {
 
     private int secondsElapsed = 0;
     private static Timeline timeline;
+
     public void startTime(){
         secondsElapsed = 0;
         timeLabel.setText("00:00");
@@ -188,7 +190,7 @@ public class gameController {
         }
         else {
             btn.setText(Integer.toString(mainGame.adjMines(row, col)));
-            mainGame.aiPlay();
+            aiPlay();
         }
     }
     public void aiShowTile(int row, int col){
@@ -211,6 +213,17 @@ public class gameController {
             String btnID = "btn" + col + row;
             Button btn = (Button) gameGPane.lookup("#" + btnID);
             btn.setText(Integer.toString(mainGame.adjMines(row, col)));
+        }
+    }
+    public void aiPlay(){
+        Random randomPlay = new Random();
+        int i,j;
+        if(mainGame.difficulty==false){
+            do{
+                i = randomPlay.nextInt(8);
+                j = randomPlay.nextInt(8);
+            } while (!mainGame.isRevealed(i,j)&&!mainGame.hasFlag(Integer.toString(i),Integer.toString(j)));
+            aiShowTile(i,j);
         }
     }
     public void btnClick(MouseEvent actionEvent) throws IOException {
