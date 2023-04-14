@@ -19,7 +19,7 @@
             <Font size="14.0" />
          </font>
       </Button>
-      <Button fx:id="hardBtn" layoutX="228.0" layoutY="211.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="72.0" style="-fx-background-color: #45BCF0;" text="Hard">
+      <Button fx:id="hardBtn" layoutX="228.0" layoutY="211.0" mnemonicParsing="false" onAction="#hardStart" prefHeight="30.0" prefWidth="72.0" style="-fx-background-color: #45BCF0;" text="Hard">
          <font>
             <Font name="Times New Roman" size="14.0" />
          </font>

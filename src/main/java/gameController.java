@@ -5,8 +5,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
+
 import java.io.IOException;
 
 public class gameController {
@@ -141,38 +144,63 @@ public class gameController {
     @FXML
     private Button hintBtn;
     @FXML
-    private Label minesLabel;
+    public static Label minesLabel;
     @FXML
     private Label selectedLabel;
     @FXML
     private Label timeLabel;
     @FXML
-    private GridPane gameGPane;
+    private static GridPane gameGPane;
 
     private int secondsElapsed = 0;
-    private Timeline timeline;
+    private static Timeline timeline;
 
     public void startTime(){
         secondsElapsed = 0;
         timeLabel.setText("00:00");
         timeline = new Timeline(
-        new KeyFrame(Duration.ZERO, e -> {
-            int minutes = secondsElapsed/60;
-            int seconds = secondsElapsed%60;
-            timeLabel.setText(String.format("%02d:%02d", minutes, seconds));
-            secondsElapsed++;
-        }),
-        new KeyFrame(Duration.seconds(1)));
-    timeline.setCycleCount(Timeline.INDEFINITE);
-    timeline.play();
+                new KeyFrame(Duration.ZERO, e -> {
+                    int minutes = secondsElapsed/60;
+                    int seconds = secondsElapsed%60;
+                    timeLabel.setText(String.format("%02d:%02d", minutes, seconds));
+                    secondsElapsed++;
+                }),
+                new KeyFrame(Duration.seconds(1)));
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.play();
     }
 
-    public void showTile(Button btn, int row, int col) {
+    public static void showTile(Button btn, int row, int col) {
         if (mainGame.hasBomb(row, col)) {
             for (int i = 0; i < mainGame.gameTiles.length; i++) {
                 for (int j = 0; j < mainGame.gameTiles[i].length; j++) {
                     String btnID = "btn" + j + i;
+                    System.out.println("btnID before mine: "+btnID);
                     btn = (Button) gameGPane.lookup("#" + btnID);
+                    if (mainGame.hasBomb(i, j)) {
+                        Image mineImg = new Image("9.png");
+                        ImageView imageView = new ImageView(mineImg);
+                        btn.setGraphic(imageView);
+                    } else {
+                        btn.setText(Integer.toString(mainGame.adjMines(i, j)));
+                        mainGame.aiPlay();
+                    }
+                }
+            }
+            timeline.stop();
+            mainGame.gameOver();
+        }
+        else {
+            btn.setText(Integer.toString(mainGame.adjMines(row, col)));
+            mainGame.aiPlay();
+        }
+    }
+    public static void aiShowTile(int row, int col){
+        if (mainGame.hasBomb(row, col)) {
+            for (int i = 0; i < mainGame.gameTiles.length; i++) {
+                for (int j = 0; j < mainGame.gameTiles[i].length; j++) {
+                    String btnID = "btn" + j + i;
+                    Button btn = (Button) gameGPane.lookup("#" + btnID);
                     if (mainGame.hasBomb(i, j)) {
                         Image mineImg = new Image("9.png");
                         ImageView imageView = new ImageView(mineImg);
@@ -182,20 +210,31 @@ public class gameController {
                     }
                 }
             }
-            timeline.stop();
-            mainGame.gameOver();
         }
         else {
+            String btnID = "btn" + col + row;
+            Button btn = (Button) gameGPane.lookup("#" + btnID);
             btn.setText(Integer.toString(mainGame.adjMines(row, col)));
         }
     }
-    public void btnClick (javafx.event.ActionEvent actionEvent) throws IOException {
+    public void btnClick(MouseEvent actionEvent) throws IOException {
         Button btnClicked = (Button) actionEvent.getSource();
+        MouseButton click = actionEvent.getButton();
         String btnName = btnClicked.getId();
         String[] btnID = btnName.split("btn");
         int btnRow = Integer.parseInt(btnID[1].substring(0, 1));
         int btnCol = Integer.parseInt(btnID[1].substring(1));
-        selectedLabel.setText("["+btnID[1].substring(0, 1)+","+btnID[1].substring(1)+"]");
-        showTile(btnClicked, btnCol, btnRow);
+        selectedLabel.setText("["+btnID[1].substring(1)+","+btnID[1].substring(0, 1)+"]");
+        if(click==MouseButton.SECONDARY){
+            mainGame.flagTile(btnClicked, btnCol, btnRow);
+        }
+        else{
+            if(!mainGame.hasFlag(btnID[1].substring(1),btnID[1].substring(0, 1))){
+                showTile(btnClicked, btnCol, btnRow);
+            }
+            else{
+                System.out.println("The selected Tile has a flag");
+            }
+        }
     }
 }
