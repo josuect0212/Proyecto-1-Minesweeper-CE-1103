@@ -125,15 +125,15 @@ public class mainGame {
     public static void setRevealed(int row, int col){
         revealedList[row][col] = true;
     }
-    public static void aiPlay(){
+    public void aiPlay(){
         Random randomPlay = new Random();
-        if(difficulty=false){
+        if(difficulty==false){
             int i = randomPlay.nextInt(8);
             int j = randomPlay.nextInt(8);
             System.out.println(i);
             System.out.println(j);
             if (!isRevealed(i,j)){
-                gameController.aiShowTile(i,j);
+                controller.aiShowTile(i,j);
             }
             else{
                 aiPlay();

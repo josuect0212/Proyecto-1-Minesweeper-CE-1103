@@ -150,11 +150,10 @@ public class gameController {
     @FXML
     private Label timeLabel;
     @FXML
-    private static GridPane gameGPane;
+    private GridPane gameGPane;
 
     private int secondsElapsed = 0;
     private static Timeline timeline;
-
     public void startTime(){
         secondsElapsed = 0;
         timeLabel.setText("00:00");
@@ -170,12 +169,11 @@ public class gameController {
         timeline.play();
     }
 
-    public static void showTile(Button btn, int row, int col) {
+    public void showTile(Button btn, int row, int col) {
         if (mainGame.hasBomb(row, col)) {
             for (int i = 0; i < mainGame.gameTiles.length; i++) {
                 for (int j = 0; j < mainGame.gameTiles[i].length; j++) {
                     String btnID = "btn" + j + i;
-                    System.out.println("btnID before mine: "+btnID);
                     btn = (Button) gameGPane.lookup("#" + btnID);
                     if (mainGame.hasBomb(i, j)) {
                         Image mineImg = new Image("9.png");
@@ -183,19 +181,17 @@ public class gameController {
                         btn.setGraphic(imageView);
                     } else {
                         btn.setText(Integer.toString(mainGame.adjMines(i, j)));
-                        mainGame.aiPlay();
                     }
                 }
             }
             timeline.stop();
-            mainGame.gameOver();
         }
         else {
             btn.setText(Integer.toString(mainGame.adjMines(row, col)));
             mainGame.aiPlay();
         }
     }
-    public static void aiShowTile(int row, int col){
+    public void aiShowTile(int row, int col){
         if (mainGame.hasBomb(row, col)) {
             for (int i = 0; i < mainGame.gameTiles.length; i++) {
                 for (int j = 0; j < mainGame.gameTiles[i].length; j++) {
@@ -224,7 +220,7 @@ public class gameController {
         String[] btnID = btnName.split("btn");
         int btnRow = Integer.parseInt(btnID[1].substring(0, 1));
         int btnCol = Integer.parseInt(btnID[1].substring(1));
-        selectedLabel.setText("["+btnID[1].substring(1)+","+btnID[1].substring(0, 1)+"]");
+        selectedLabel.setText("["+btnID[1].substring(0, 1)+","+btnID[1].substring(1)+"]");
         if(click==MouseButton.SECONDARY){
             mainGame.flagTile(btnClicked, btnCol, btnRow);
         }
