@@ -1,3 +1,5 @@
+import com.fazecast.jSerialComm.SerialPortDataListener;
+import com.fazecast.jSerialComm.SerialPortEvent;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
@@ -9,6 +11,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.util.Duration;
+import com.fazecast.jSerialComm.SerialPort;
 
 import java.io.IOException;
 import java.util.Random;
@@ -155,6 +158,7 @@ public class gameController {
 
     private int secondsElapsed = 0;
     private static Timeline timeline;
+    private int turnCount = 0;
 
     public void startTime(){
         secondsElapsed = 0;
@@ -252,6 +256,48 @@ public class gameController {
                 System.out.println("The selected Tile has a flag");
             }
         }
+    }
+    public void ArduinoController(){
+        SerialPort serialPort = SerialPort.getCommPort("COM3");
+        serialPort.openPort();
+        serialPort.setComPortParameters(9600, Byte.SIZE, serialPort.ONE_STOP_BIT, serialPort.NO_PARITY);
+        serialPort.setComPortTimeouts(serialPort.TIMEOUT_WRITE_BLOCKING,0,0);
+        boolean hasOpened = serialPort.openPort();
+        if (!hasOpened){
+            throw new IllegalStateException("Failed to open serial port");
+        }
+        serialPort.addDataListener(new SerialPortDataListener() {
+            @Override
+            public int getListeningEvents() {
+                return SerialPort.LISTENING_EVENT_DATA_AVAILABLE;
+            }
+
+            @Override
+            public void serialEvent(SerialPortEvent serialPortEvent) {
+                if (serialPortEvent.getEventType() != SerialPort.LISTENING_EVENT_DATA_AVAILABLE) return;
+                byte[] newData = new byte[serialPort.bytesAvailable()];
+                int numRead = serialPort.readBytes(newData, newData.length);
+                String data = new String(newData);
+                switch (data){
+                    case "LEFT":
+                        selectedLabel.setText("LEFT");
+                        break;
+                    case "RIGHT":
+                        selectedLabel.setText("RIGHT");
+                        break;
+                    case "UP":
+                        selectedLabel.setText("UP");
+                        break;
+                    case "DOWN":
+                        selectedLabel.setText("DOWN");
+                        break;
+                    case "SELECT":
+                        selectedLabel.setText("SELECT");
+                        break;
+                }
+            }
+        });
+        Runtime.getRuntime().addShutdownHook(new Thread(serialPort::closePort));
     }
     public void disableBoard(){
         for(int i = 0; i<mainGame.gameTiles.length; i++){
