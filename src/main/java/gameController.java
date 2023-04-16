@@ -190,6 +190,7 @@ public class gameController {
         }
         else {
             btn.setText(Integer.toString(mainGame.adjMines(row, col)));
+            mainGame.setRevealed(row,col);
             aiPlay();
         }
     }
@@ -203,7 +204,8 @@ public class gameController {
                         Image mineImg = new Image("9.png");
                         ImageView imageView = new ImageView(mineImg);
                         btn.setGraphic(imageView);
-                    } else {
+                    }
+                    else {
                         btn.setText(Integer.toString(mainGame.adjMines(i, j)));
                     }
                 }
@@ -222,7 +224,7 @@ public class gameController {
             do{
                 i = randomPlay.nextInt(8);
                 j = randomPlay.nextInt(8);
-            } while (!mainGame.isRevealed(i,j)&&!mainGame.hasFlag(Integer.toString(i),Integer.toString(j)));
+            } while (mainGame.isRevealed(i,j)&&!mainGame.hasFlag(Integer.toString(i),Integer.toString(j)));
             aiShowTile(i,j);
         }
     }
