@@ -1,9 +1,7 @@
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.GridPane;
 
 import java.util.Arrays;
 import java.util.Random;
@@ -14,6 +12,7 @@ public class mainGame {
     public static String[] flagList = new String[12];
     static int currentFlags = 0;
     public static boolean difficulty;
+    public static boolean aiWL = false;
     public static boolean[][] revealedList = new boolean[8][8];
     public mainGame(gameController controller) {
         this.controller = controller;
@@ -125,6 +124,17 @@ public class mainGame {
     public static void setRevealed(int row, int col){
         revealedList[row][col] = true;
     }
-
-    public static void gameOver(){}}
+    public static void gameOver(){
+        Alert overAlert = new Alert(Alert.AlertType.INFORMATION);
+        overAlert.setTitle("Game Over");
+        overAlert.setHeaderText(null);
+        if (aiWL){
+            overAlert.setContentText("Congratulations! You won!");
+        }
+        else{
+            overAlert.setContentText("You lost!");
+        }
+        overAlert.showAndWait();
+    }
+}
 

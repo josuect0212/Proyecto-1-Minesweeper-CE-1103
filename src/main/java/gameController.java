@@ -187,6 +187,8 @@ public class gameController {
                 }
             }
             timeline.stop();
+            mainGame.gameOver();
+            disableBoard();
         }
         else {
             btn.setText(Integer.toString(mainGame.adjMines(row, col)));
@@ -210,6 +212,9 @@ public class gameController {
                     }
                 }
             }
+            mainGame.aiWL = true;
+            mainGame.gameOver();
+            disableBoard();
         }
         else {
             String btnID = "btn" + col + row;
@@ -245,6 +250,15 @@ public class gameController {
             }
             else{
                 System.out.println("The selected Tile has a flag");
+            }
+        }
+    }
+    public void disableBoard(){
+        for(int i = 0; i<mainGame.gameTiles.length; i++){
+            for(int j = 0; j<mainGame.gameTiles[i].length; j++){
+                String btn = "btn"+j+i;
+                Button button = (Button) gameGPane.lookup("#"+btn);
+                button.setDisable(true);
             }
         }
     }
