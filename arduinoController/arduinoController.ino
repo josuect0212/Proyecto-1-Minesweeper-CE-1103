@@ -34,14 +34,14 @@ void loop() {
   }
   if(Serial.available()){
     String message = Serial.readString();
-    if (message=="FLAG"){
+    if (message=="F"){
       digitalWrite(10,HIGH);
       delay(1000);
       digitalWrite(10,LOW);
       delay(1000); 
       noTone(12);
     }  
-    if (message=="MINE"){
+    if (message=="M"){
       tone(12, 1000);
       delay(1000);
       tone(12, 1000);

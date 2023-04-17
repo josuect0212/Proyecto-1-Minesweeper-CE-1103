@@ -240,6 +240,24 @@ public class gameController {
             } while (mainGame.isRevealed(i,j)&&!mainGame.hasFlag(Integer.toString(i),Integer.toString(j)));
             aiShowTile(i,j);
         }
+        else{
+            LinkedList genList = new LinkedList();
+            LinkedList safeList = new LinkedList();
+            LinkedList unsafeList = new LinkedList();
+            for (int x = 0; x < mainGame.gameTiles.length; x++) {
+                for (int y = 0; y < mainGame.gameTiles[x].length; y++) {
+                    if(!mainGame.isRevealed(x,y)&&!mainGame.hasFlag(Integer.toString(x),Integer.toString(y))){
+                        String pos = Integer.toString(x)+Integer.toString(y);
+                        genList.insertFirst(pos);
+                    }
+                }
+            }
+            genList.displayList();
+            int randPos = randomPlay.nextInt(64);
+            if(genList.find(Integer.toString(randPos))){
+
+            }
+        }
     }
     public void btnClick(MouseEvent actionEvent) throws IOException {
         Button btnClicked = (Button) actionEvent.getSource();
