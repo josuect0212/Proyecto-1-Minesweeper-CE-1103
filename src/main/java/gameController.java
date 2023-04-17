@@ -180,6 +180,7 @@ public class gameController {
 
     public void showTile(Button btn, int row, int col) {
         if (mainGame.hasBomb(row, col)) {
+            sendData("M");
             for (int i = 0; i < mainGame.gameTiles.length; i++) {
                 for (int j = 0; j < mainGame.gameTiles[i].length; j++) {
                     String btnID = "btn" + j + i;
@@ -253,11 +254,48 @@ public class gameController {
                 }
             }
             genList.displayList();
-            int randPos = randomPlay.nextInt(64);
-            if(genList.find(Integer.toString(randPos))){
-
+            for(int z = 0; z < genList.size(); z++){
+                int randX = randomPlay.nextInt(7);
+                int randY = randomPlay.nextInt(7);
+                String randPos = Integer.toString(randX)+Integer.toString(randY);
+                if(genList.find(randPos)){
+                    if(isSafe(randX,randY)){
+                        safeList.insertFirst(randPos);
+                        genList.delete(randPos);
+                    }
+                    else{
+                        unsafeList.insertFirst(randPos);
+                        genList.delete(randPos);
+                    }
+                }
+                else{
+                    z++;
+                }
             }
         }
+    }
+    public boolean isSafe(int row, int col){
+        for (int i = row - 1; i <= row + 1; i++) {
+            for (int j = col - 1; j <= col + 1; j++) {
+                if (i == row && j == col) {
+                    continue;
+                }
+                if (mainGame.isRevealed(i, j)) {
+                    String btnID = "btn" + j + i;
+                    Button btn = (Button) gameGPane.lookup("#" + btnID);
+                    if (btn.getText().equals("0")) {
+                        return true;
+                    }
+                    else{
+                        return false;
+                    }
+                }
+                else{
+                    return false;
+                }
+            }
+        }
+        return true;
     }
     public void btnClick(MouseEvent actionEvent) throws IOException {
         Button btnClicked = (Button) actionEvent.getSource();
@@ -268,6 +306,7 @@ public class gameController {
         int btnCol = Integer.parseInt(btnID[1].substring(1));
         selectedLabel.setText("["+btnID[1].substring(0, 1)+","+btnID[1].substring(1)+"]");
         if(click==MouseButton.SECONDARY){
+            sendData("F");
             mainGame.flagTile(btnClicked, btnCol, btnRow);
         }
         else{
@@ -278,6 +317,13 @@ public class gameController {
                 System.out.println("The selected Tile has a flag");
             }
         }
+    }
+    public void sendData(String data){
+        SerialPort serialPort = SerialPort.getCommPort("COM3");
+        serialPort.openPort();
+        byte[] message = data.getBytes();
+        serialPort.writeBytes(message,message.length);
+        serialPort.closePort();
     }
     public void ArduinoController(){
         SerialPort serialPort = SerialPort.getCommPort("COM3");
@@ -418,6 +464,7 @@ public class gameController {
             System.out.println(btnID);
             Button btn = (Button) gameGPane.lookup("#" + btnID);
             btn.setText(Integer.toString(mainGame.adjMines(row, col)));
+            aiPlay();
         }
     }
     public void disableBoard(){

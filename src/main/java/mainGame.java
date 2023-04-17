@@ -2,6 +2,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import com.fazecast.jSerialComm.SerialPort;
 
 import java.util.Arrays;
 import java.util.Random;
