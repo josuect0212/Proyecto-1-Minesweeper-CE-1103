@@ -24,6 +24,7 @@ public class menuController {
         Stage stage = (Stage) easyBtn.getScene().getWindow();
         mainGame.difficulty = false;
         stage.setScene(scene);
+        gameController.ArduinoController();
         stage.show();
     }
     public void hardStart(javafx.event.ActionEvent actionEvent) throws IOException{

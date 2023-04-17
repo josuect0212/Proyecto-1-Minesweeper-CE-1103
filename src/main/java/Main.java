@@ -8,8 +8,6 @@ import java.net.URL;
 public class Main extends Application{
     @Override
     public void start(Stage primaryStage) throws Exception{
-        gameController controller = new gameController();
-        controller.ArduinoController();
         FXMLLoader loader = new FXMLLoader();
         URL url = getClass().getResource("/mainMenu.fxml");
         loader.setLocation(url);

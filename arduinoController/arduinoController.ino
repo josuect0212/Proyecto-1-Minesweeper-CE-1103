@@ -10,23 +10,23 @@ void setup() {
 }
 void loop() {
   if(digitalRead(2)==LOW){
-    Serial.write("LEFT");
+    Serial.write("L");
     delay(500);
   }
   if(digitalRead(3)==LOW){
-    Serial.write("UP");
+    Serial.write("U");
     delay(500);
   }
   if(digitalRead(4)==LOW){
-    Serial.write("RIGHT");
+    Serial.write("R");
     delay(500);
   }
   if(digitalRead(5)==LOW){
-    Serial.write("DOWN");
+    Serial.write("D");
     delay(500);
   }
   if(digitalRead(9)==LOW){
-    Serial.write("SELECT");
+    Serial.write("S");
     digitalWrite(13,HIGH);
     delay(250);
     digitalWrite(13,LOW);

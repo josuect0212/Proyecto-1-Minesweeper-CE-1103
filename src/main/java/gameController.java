@@ -1,8 +1,11 @@
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
+import javafx.application.Platform;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -150,7 +153,7 @@ public class gameController {
     @FXML
     public static Label minesLabel;
     @FXML
-    private Label selectedLabel;
+    private Label selectedLabel = new Label("[0,0]");
     @FXML
     private Label timeLabel;
     @FXML
@@ -216,6 +219,7 @@ public class gameController {
                     }
                 }
             }
+            timeline.stop();
             mainGame.aiWL = true;
             mainGame.gameOver();
             disableBoard();
@@ -279,25 +283,124 @@ public class gameController {
                 int numRead = serialPort.readBytes(newData, newData.length);
                 String data = new String(newData);
                 switch (data){
-                    case "LEFT":
-                        selectedLabel.setText("LEFT");
+                    case "L":
+                        System.out.println("LEFT");
+                        updateLabel("LEFT");
                         break;
-                    case "RIGHT":
-                        selectedLabel.setText("RIGHT");
+                    case "R":
+                        System.out.println("RIGHT");
+                        updateLabel("RIGHT");
                         break;
-                    case "UP":
-                        selectedLabel.setText("UP");
+                    case "U":
+                        System.out.println("UP");
+                        updateLabel("UP");
                         break;
-                    case "DOWN":
-                        selectedLabel.setText("DOWN");
+                    case "D":
+                        System.out.println("DOWN");
+                        updateLabel("DOWN");
                         break;
-                    case "SELECT":
-                        selectedLabel.setText("SELECT");
+                    case "S":
+                        System.out.println("SELECT");
+                        updateLabel("SELECT");
                         break;
                 }
             }
         });
         Runtime.getRuntime().addShutdownHook(new Thread(serialPort::closePort));
+    }
+    public void updateLabel(String input){
+        String currentText = selectedLabel.getText();
+        String currentX = currentText.substring(1,2);
+        String currentY = currentText.substring(3,4);
+        if (input.equals("LEFT")){
+            int x = Integer.parseInt(currentX);
+            if(x==0){
+                System.out.println("Out of limit");
+            }
+            else{
+                x--;
+                String newX = Integer.toString(x);
+                System.out.println("Current selection: "+"["+x+","+currentY+"]");
+                Platform.runLater(()->{
+                    selectedLabel.setText("[" + newX + ',' + currentY + "]");
+                });
+            }
+        }
+        if(input.equals("RIGHT")) {
+            int x = Integer.parseInt(currentX);
+            if (x == 7) {
+                System.out.println("Out of limit");
+            } else {
+                x++;
+                String newX = Integer.toString(x);
+                System.out.println("Current selection: "+"[" + x + ',' + currentY + "]");
+                Platform.runLater(()->{
+                selectedLabel.setText("[" + newX + ',' + currentY + "]");
+                });
+            }
+        }
+        if(input.equals("UP")){
+            int y = Integer.parseInt(currentY);
+            if(y==0){
+                System.out.println("Out of limit");
+            }
+            else{
+                y--;
+                String newY = Integer.toString(y);
+                System.out.println("Current selection: "+"["+currentX+","+y+"]");
+                Platform.runLater(()->{
+                    selectedLabel.setText("[" + currentX + ',' + newY + "]");
+                });
+            }
+        }
+        if(input.equals("DOWN")){
+            int y = Integer.parseInt(currentY);
+            if(y==7){
+                System.out.println("Out of limit");
+            }
+            else{
+                y++;
+                String newY = Integer.toString(y);
+                System.out.println("Current selection: "+"["+currentX+","+y+"]");
+                Platform.runLater(()->{
+                    selectedLabel.setText("[" + currentX + ',' + newY + "]");
+                });
+            }
+        }
+        if(input.equals("SELECT")){
+            Platform.runLater(()->{
+            arduinoSelection(Integer.parseInt(currentX), Integer.parseInt(currentY));
+            });
+        }
+    }
+    public void arduinoSelection(int row, int col){
+        System.out.println(row);
+        System.out.println(col);
+        if (mainGame.hasBomb(row, col)) {
+            for (int i = 0; i < mainGame.gameTiles.length; i++) {
+                for (int j = 0; j < mainGame.gameTiles[i].length; j++) {
+                    String btnID = "btn" + j + i;
+                    Button btn = (Button) gameGPane.lookup("#" + btnID);
+                    if (mainGame.hasBomb(i, j)) {
+                        Image mineImg = new Image("9.png");
+                        ImageView imageView = new ImageView(mineImg);
+                        btn.setGraphic(imageView);
+                    }
+                    else {
+                        btn.setText(Integer.toString(mainGame.adjMines(i, j)));
+                    }
+                }
+            }
+            timeline.stop();
+            mainGame.gameOver();
+            disableBoard();
+        }
+        else {
+            String btnID = "btn" + col + row;
+            System.out.println(btnID);
+            Button btn = (Button) gameGPane.lookup("#" + btnID);
+            btn.setText(Integer.toString(mainGame.adjMines(row, col)));
+        }
     }
     public void disableBoard(){
         for(int i = 0; i<mainGame.gameTiles.length; i++){
