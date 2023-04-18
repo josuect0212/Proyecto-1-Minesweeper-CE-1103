@@ -21,6 +21,9 @@ import com.fazecast.jSerialComm.SerialPort;
 import java.io.IOException;
 import java.util.Random;
 
+/**
+ * This class controls the GUI of the game, and also has some logic of the game
+ */
 public class gameController {
     @FXML
     private Button btn00;
@@ -167,6 +170,9 @@ public class gameController {
     Stack hintStack = new Stack();
     private SerialPort serialPort;
 
+    /**
+     * Starts a time counter for the game.
+     */
     public void startTime(){
         secondsElapsed = 0;
         timeLabel.setText("00:00");
@@ -182,6 +188,12 @@ public class gameController {
         timeline.play();
     }
 
+    /**
+     * This method shows every tile if the selected tile has a bomb, if not, it shows the number of adjacent mines for the selected tile.
+     * @param btn The tile that was clicked
+     * @param row The row where the tile is located
+     * @param col The column where the tile is located
+     */
     public void showTile(Button btn, int row, int col) {
         if (mainGame.hasBomb(row, col)) {
             for (int i = 0; i < mainGame.gameTiles.length; i++) {
@@ -212,6 +224,10 @@ public class gameController {
             aiPlay();
         }
     }
+
+    /**
+     * This method looks for a tile without a mine, that hasn't been revealed, then it adds that tile to the hintStack.
+     */
     private void hint(){
         Random randTile = new Random();
         int i,j;
@@ -221,6 +237,11 @@ public class gameController {
         } while(!mainGame.hasBomb(i,j)&&mainGame.isRevealed(i,j));
         hintStack.push("The button at the " +"["+Integer.toString(i)+","+Integer.toString(j)+"]"+" position, is safe");
     }
+
+    /**
+     * Shows the last added hint to the player if the hintStack isn't empty, if it's empty it only shows an alert that says that there are no hints.
+     * @param event the ActionEvent that gets triggered when the hint button is pressed.
+     */
     @FXML
     private void showHint(ActionEvent event){
         Alert hintAlert = new Alert(Alert.AlertType.INFORMATION);
@@ -238,6 +259,12 @@ public class gameController {
             hintAlert.showAndWait();
         }
     }
+
+    /**
+     * If the ai lands on a mine it reveals all tiles, otherwise it reveals the adjacent mines of the tile selected by the ai
+     * @param row The row where the tile is located
+     * @param col The column where the tile is located
+     */
     public void aiShowTile(int row, int col){
         if (mainGame.hasBomb(row, col)) {
             for (int i = 0; i < mainGame.gameTiles.length; i++) {
@@ -265,6 +292,12 @@ public class gameController {
             btn.setText(Integer.toString(mainGame.adjMines(row, col)));
         }
     }
+
+    /**
+     * This method contains the logic for both the easy difficulty and the advanced difficulty
+     * If difficulty is off, the AI will select a random playable tile and will play it
+     * If the hard mode is true, the AI will consider what's the safest tile known based on the game board state and which ones are unsafe, all this by using Linked Lists to generate all possible safe plays and unsafe plays, after that the AI will always prioritize a tile from the safeList to play, if there are none it will play one from the unsafeList.
+     */
     public void aiPlay(){
         Random randomPlay = new Random();
         int i,j;
@@ -331,6 +364,13 @@ public class gameController {
             }
         }
     }
+
+    /**
+     * This method will look for each adjacent tile of the selected tile and, based on it's number of adjacent mines will consider if the selected tile is safe or not, this can only be considered if the adjacent tiles are revealed.
+     * @param row the row where the tile is located
+     * @param col the column where the tile is located
+     * @return true if the selected tile is safe to play, false if not
+     */
     public boolean isSafe(int row, int col){
         System.out.println("Entro: "+Integer.toString(row)+Integer.toString(col));
         for (int i = row-1; i <= row+1; i++) {
@@ -352,6 +392,12 @@ public class gameController {
         }
         return false;
     }
+
+    /**
+     * This method detects if the MouseEvent was either a right click, to reveal a tile, or a left click, to set a flag.
+     * @param actionEvent Mouse click event
+     * @throws IOException
+     */
     public void btnClick(MouseEvent actionEvent) throws IOException {
         Button btnClicked = (Button) actionEvent.getSource();
         MouseButton click = actionEvent.getButton();
@@ -373,10 +419,19 @@ public class gameController {
             }
         }
     }
+
+    /**
+     * This method sends a message to the arduino so that it performs a certain action
+     * @param data the data that will be sent
+     */
     public void sendData(String data){
         byte[] message = data.getBytes();
         serialPort.writeBytes(message,message.length);
     }
+
+    /**
+     * This method initializes the Arduino controller, it also adds a data listener to listen for incoming data from the Arduino, this being the pressed buttons on the Arduino, it updates the selected label so that it shows what's the arduino current selection.
+     */
     public void ArduinoController(){
         serialPort = SerialPort.getCommPort("COM3");
         serialPort.openPort();
@@ -424,6 +479,11 @@ public class gameController {
         });
         Runtime.getRuntime().addShutdownHook(new Thread(serialPort::closePort));
     }
+
+    /**
+     * This method receives the specific button that was pressed and updates the label of current selection to the corresponding movement, if the select button is pressed it calls the selection method.
+     * @param input received from the arduino as a string
+     */
     public void updateLabel(String input){
         String currentText = selectedLabel.getText();
         String currentX = currentText.substring(1,2);
@@ -489,6 +549,12 @@ public class gameController {
             });
         }
     }
+
+    /**
+     * This method contains the logic for revealing the selected tile by the arduino select button, and if it has a mine it will reveal every tile of the game and end it.
+     * @param row
+     * @param col
+     */
     public void arduinoSelection(int row, int col){
         System.out.println(row);
         System.out.println(col);
@@ -521,6 +587,10 @@ public class gameController {
             aiPlay();
         }
     }
+
+    /**
+     * This method disables the board after the game ends.
+     */
     public void disableBoard(){
         for(int i = 0; i<mainGame.gameTiles.length; i++){
             for(int j = 0; j<mainGame.gameTiles[i].length; j++){

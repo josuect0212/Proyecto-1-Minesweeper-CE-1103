@@ -5,6 +5,9 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import java.net.URL;
 
+/**
+ * This class starts the application
+ */
 public class Main extends Application{
     /**
      * Starts the game by loading the main menu FXML file

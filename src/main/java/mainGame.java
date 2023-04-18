@@ -7,6 +7,9 @@ import com.fazecast.jSerialComm.SerialPort;
 import java.util.Arrays;
 import java.util.Random;
 
+/**
+ * A part of the logic of the game is contained in this class.
+ */
 public class mainGame {
     private gameController controller;
     public static int[][] gameTiles = new int[8][8];
