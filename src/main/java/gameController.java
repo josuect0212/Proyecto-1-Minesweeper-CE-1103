@@ -273,6 +273,7 @@ public class gameController {
                 i = randomPlay.nextInt(8);
                 j = randomPlay.nextInt(8);
             } while (mainGame.isRevealed(i,j)&&!mainGame.hasFlag(Integer.toString(i),Integer.toString(j)));
+            mainGame.setRevealed(i,j);
             aiShowTile(i,j);
         }
         else{
@@ -287,31 +288,47 @@ public class gameController {
                     }
                 }
             }
+            System.out.println("General List at the start");
             genList.displayList();
-            System.out.println(genList.getSize());
-            System.out.println(genList.isEmpty());
-            System.out.println(genList.getSize()<63);
             while(!genList.isEmpty()&&genList.getSize()<64){
                 int randX = randomPlay.nextInt(8);
                 int randY = randomPlay.nextInt(8);
                 String randPos = Integer.toString(randX)+Integer.toString(randY);
                 if(genList.find(randPos) != null){
                     if(isSafe(randX,randY)){
-                        System.out.println("Safe");
+                        System.out.println("Safe List after insertion");
                         safeList.insertFirst(randPos);
+
                         safeList.displayList();
                     }
                     else{
-                        System.out.println("NotSafe");
+                        System.out.println("Unsafe List after insertion");
                         unsafeList.insertFirst(randPos);
                         unsafeList.displayList();
                     }
+                    System.out.println("General List after deleting");
                     genList.delete(randPos);
                     genList.displayList();
                 }
             }
+            System.out.println("Final safe list: ");
             safeList.displayList();
+            System.out.println("Final unsafe list");
             unsafeList.displayList();
+            if(!safeList.isEmpty()){
+                String safeNum = (String) safeList.getHead().getData();
+                int row = Integer.parseInt(safeNum.substring(0,1));
+                int col = Integer.parseInt(safeNum.substring(1,2));
+                mainGame.setRevealed(row,col);
+                aiShowTile(row, col);
+            }
+            else if(!unsafeList.isEmpty()){
+                String unsafeNum = (String) unsafeList.getHead().getData();
+                int row = Integer.parseInt(unsafeNum.substring(0,1));
+                int col = Integer.parseInt(unsafeNum.substring(1,2));
+                mainGame.setRevealed(row,col);
+                aiShowTile(row, col);
+            }
         }
     }
     public boolean isSafe(int row, int col){
@@ -500,6 +517,7 @@ public class gameController {
             System.out.println(btnID);
             Button btn = (Button) gameGPane.lookup("#" + btnID);
             btn.setText(Integer.toString(mainGame.adjMines(row, col)));
+            mainGame.setRevealed(row,col);
             aiPlay();
         }
     }

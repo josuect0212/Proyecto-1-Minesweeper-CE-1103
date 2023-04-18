@@ -40,6 +40,7 @@ public class menuController {
         Stage stage = (Stage) hardBtn.getScene().getWindow();
         mainGame.difficulty = true;
         stage.setScene(scene);
+        gameController.ArduinoController();
         stage.show();
     }
 }

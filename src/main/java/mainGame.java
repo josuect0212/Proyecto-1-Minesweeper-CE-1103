@@ -15,9 +15,18 @@ public class mainGame {
     public static boolean difficulty;
     public static boolean aiWL = false;
     public static boolean[][] revealedList = new boolean[8][8];
+
+    /**
+     * Creates an instance of the gameController class
+     * @param controller the instance for the controller
+     */
     public mainGame(gameController controller) {
         this.controller = controller;
     }
+
+    /**
+     * Sets the initial board of the game, by setting every tile to 0, to indicate that it doesn't contain a mine. Then, it sets every element of the flagList to an empty string, to indicate that the game starts with no flags
+     */
     public static void setBoard(){
         for (int i = 0; i < gameTiles.length; i++){
             for (int j = 0; j < gameTiles[i].length; j++){
@@ -28,6 +37,10 @@ public class mainGame {
             flagList[x] = "";
         }
     }
+
+    /**
+     *  Randomly select 12 tiles and changes their value to 1, to indicate that it contains a mine.
+     */
     public static void setMines(){
         int numBombs = 12;
         int bombsPlaced = 0;
@@ -41,6 +54,13 @@ public class mainGame {
             }
         }
     }
+
+    /**
+     * Calculates the number of adjacent mines given a specific tile.
+     * @param i the row where the tile is located
+     * @param j the column where the tile is located
+     * @return the number of mines adjacent to that tile
+     */
     public static int adjMines(int i, int j){
         int count = 0;
         for (int adjRow=i-1; adjRow<=i+1;adjRow++){
@@ -54,6 +74,13 @@ public class mainGame {
         }
         return count;
     }
+
+    /**
+     * Shows if a tile in a specific position contains a bomb or not
+     * @param i the row where the tile is located
+     * @param j the column where the tile is located
+     * @return true if it has a bomb, false if it doesn't
+     */
     public static boolean hasBomb(int i, int j){
         if (gameTiles[i][j] == 1){
             return true;
@@ -62,6 +89,13 @@ public class mainGame {
             return false;
         }
     }
+
+    /**
+     * If there are flags available it sets a flag on the tile that was clicked
+     * @param btnClicked the Button that was clicked
+     * @param i the row where the tile is located
+     * @param j the column where the tile is located
+     */
     public static void flagTile(Button btnClicked, int i, int j){
         String row = Integer.toString(i);
         String col = Integer.toString(j);
@@ -102,6 +136,13 @@ public class mainGame {
         }
     }
      */
+
+    /**
+     * Shows if a specific tile has a flag or not
+     * @param i the row where the tile is located
+     * @param j the column where the tile is located
+     * @return true if it has a flag, false if not
+     */
     public static boolean hasFlag(String i, String j){
         int count = 0;
         while (count<12){
@@ -114,6 +155,13 @@ public class mainGame {
         }
         return false;
     }
+
+    /**
+     * Shows if a specific tile has been revealed
+     * @param row the row where the tile is located
+     * @param col the column where the tile is located
+     * @return true if it has been revealed, false if not
+     */
     public static boolean isRevealed(int row,int col){
         if(revealedList[row][col]==true){
             return true;
@@ -122,9 +170,19 @@ public class mainGame {
             return false;
         }
     }
+
+    /**
+     * Sets a given tile the revealed status
+     * @param row the row where the tile is located
+     * @param col the column where the tile is located
+     */
     public static void setRevealed(int row, int col){
         revealedList[row][col] = true;
     }
+
+    /**
+     * Based on the AI win/lose condition shows a Congratulations! alert if the AI loses, and a You lost! alert if the AI wins.
+     */
     public static void gameOver(){
         Alert overAlert = new Alert(Alert.AlertType.INFORMATION);
         overAlert.setTitle("Game Over");
