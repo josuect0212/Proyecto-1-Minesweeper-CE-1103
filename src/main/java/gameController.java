@@ -3,9 +3,11 @@ import com.fazecast.jSerialComm.SerialPortEvent;
 import javafx.application.Platform;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -162,6 +164,8 @@ public class gameController {
     private int secondsElapsed = 0;
     private static Timeline timeline;
     private int turnCount = 0;
+    Stack hintStack = new Stack();
+    private SerialPort serialPort;
 
     public void startTime(){
         secondsElapsed = 0;
@@ -180,7 +184,6 @@ public class gameController {
 
     public void showTile(Button btn, int row, int col) {
         if (mainGame.hasBomb(row, col)) {
-            sendData("M");
             for (int i = 0; i < mainGame.gameTiles.length; i++) {
                 for (int j = 0; j < mainGame.gameTiles[i].length; j++) {
                     String btnID = "btn" + j + i;
@@ -199,9 +202,40 @@ public class gameController {
             disableBoard();
         }
         else {
+            turnCount++;
+            if(turnCount==5){
+                hint();
+                turnCount=0;
+            }
             btn.setText(Integer.toString(mainGame.adjMines(row, col)));
             mainGame.setRevealed(row,col);
             aiPlay();
+        }
+    }
+    private void hint(){
+        Random randTile = new Random();
+        int i,j;
+        do{
+            i = randTile.nextInt(8);
+            j = randTile.nextInt(8);
+        } while(!mainGame.hasBomb(i,j)&&mainGame.isRevealed(i,j));
+        hintStack.push("The button at the " +"["+Integer.toString(i)+","+Integer.toString(j)+"]"+" position, is safe");
+    }
+    @FXML
+    private void showHint(ActionEvent event){
+        Alert hintAlert = new Alert(Alert.AlertType.INFORMATION);
+        if (hintStack.isEmpty()){
+            hintAlert.setTitle("No hints available");
+            hintAlert.setHeaderText(null);
+            hintAlert.setContentText("There are no hints available!");
+            hintAlert.showAndWait();
+        }
+        else{
+            hintAlert.setTitle("Hint");
+            hintAlert.setHeaderText(null);
+            hintAlert.setContentText(String.valueOf(hintStack.peek()));
+            hintStack.pop();
+            hintAlert.showAndWait();
         }
     }
     public void aiShowTile(int row, int col){
@@ -254,48 +288,52 @@ public class gameController {
                 }
             }
             genList.displayList();
-            for(int z = 0; z < genList.size(); z++){
-                int randX = randomPlay.nextInt(7);
-                int randY = randomPlay.nextInt(7);
+            System.out.println(genList.getSize());
+            System.out.println(genList.isEmpty());
+            System.out.println(genList.getSize()<63);
+            while(!genList.isEmpty()&&genList.getSize()<64){
+                int randX = randomPlay.nextInt(8);
+                int randY = randomPlay.nextInt(8);
                 String randPos = Integer.toString(randX)+Integer.toString(randY);
-                if(genList.find(randPos)){
+                if(genList.find(randPos) != null){
                     if(isSafe(randX,randY)){
+                        System.out.println("Safe");
                         safeList.insertFirst(randPos);
-                        genList.delete(randPos);
+                        safeList.displayList();
                     }
                     else{
+                        System.out.println("NotSafe");
                         unsafeList.insertFirst(randPos);
-                        genList.delete(randPos);
+                        unsafeList.displayList();
                     }
-                }
-                else{
-                    z++;
+                    genList.delete(randPos);
+                    genList.displayList();
                 }
             }
+            safeList.displayList();
+            unsafeList.displayList();
         }
     }
     public boolean isSafe(int row, int col){
-        for (int i = row - 1; i <= row + 1; i++) {
-            for (int j = col - 1; j <= col + 1; j++) {
+        System.out.println("Entro: "+Integer.toString(row)+Integer.toString(col));
+        for (int i = row-1; i <= row+1; i++) {
+            for (int j = col-1; j <= col+1; j++) {
                 if (i == row && j == col) {
+                    System.out.println("Continue");
                     continue;
                 }
-                if (mainGame.isRevealed(i, j)) {
-                    String btnID = "btn" + j + i;
-                    Button btn = (Button) gameGPane.lookup("#" + btnID);
-                    if (btn.getText().equals("0")) {
-                        return true;
+                if((i >= 0) && (i < mainGame.gameTiles.length) && (j >= 0) && (j < mainGame.gameTiles[0].length)){
+                    if (mainGame.isRevealed(i, j)) {
+                        String btnID = "btn" + j + i;
+                        Button btn = (Button) gameGPane.lookup("#" + btnID);
+                        if (btn.getText().equals("0")) {
+                            return true;
+                        }
                     }
-                    else{
-                        return false;
-                    }
-                }
-                else{
-                    return false;
                 }
             }
         }
-        return true;
+        return false;
     }
     public void btnClick(MouseEvent actionEvent) throws IOException {
         Button btnClicked = (Button) actionEvent.getSource();
@@ -319,14 +357,11 @@ public class gameController {
         }
     }
     public void sendData(String data){
-        SerialPort serialPort = SerialPort.getCommPort("COM3");
-        serialPort.openPort();
         byte[] message = data.getBytes();
         serialPort.writeBytes(message,message.length);
-        serialPort.closePort();
     }
     public void ArduinoController(){
-        SerialPort serialPort = SerialPort.getCommPort("COM3");
+        serialPort = SerialPort.getCommPort("COM3");
         serialPort.openPort();
         serialPort.setComPortParameters(9600, Byte.SIZE, serialPort.ONE_STOP_BIT, serialPort.NO_PARITY);
         serialPort.setComPortTimeouts(serialPort.TIMEOUT_WRITE_BLOCKING,0,0);
@@ -433,7 +468,7 @@ public class gameController {
         }
         if(input.equals("SELECT")){
             Platform.runLater(()->{
-            arduinoSelection(Integer.parseInt(currentX), Integer.parseInt(currentY));
+            arduinoSelection(Integer.parseInt(currentY), Integer.parseInt(currentX));
             });
         }
     }
@@ -455,6 +490,7 @@ public class gameController {
                     }
                 }
             }
+            sendData("M");
             timeline.stop();
             mainGame.gameOver();
             disableBoard();

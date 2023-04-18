@@ -25,24 +25,25 @@ public class LinkedList {
             return null;
         }
     }
-    public void displayList(){
+    public void displayList() {
         Node current = this.head;
-        while (current != null){
-            System.out.println(current.getData());
+        while (current != null) {
+            System.out.print(current.getData() + " ");
             current = current.getNext();
         }
+        System.out.println();
     }
-    public boolean find(Object searchValue){
+    public Node find(Object searchValue){
         Node current = this.head;
         while(current!=null){
             if(current.getData().equals(searchValue)){
-                return true;
+                return current;
             }
             else{
                 current = current.getNext();
             }
         }
-        return false;
+        return null;
     }
     public Node delete(Object searchValue){
         Node current = this.head;
@@ -56,6 +57,7 @@ public class LinkedList {
                 else {
                     previous.setNext(current.getNext());
                 }
+                return current;
             }
             else{
                 previous=current;
@@ -63,5 +65,11 @@ public class LinkedList {
             }
         }
         return null;
+    }
+    public Node getHead(){
+        return this.head;
+    }
+    public int getSize(){
+        return this.size;
     }
 }

@@ -113,7 +113,7 @@
             <Button fx:id="btn77" alignment="CENTER" mnemonicParsing="false" onMouseClicked="#btnClick" prefHeight="33.0" prefWidth="37.0" GridPane.columnIndex="7" GridPane.rowIndex="7" />
          </children>
       </GridPane>
-      <Button fx:id="hintBtn" layoutX="262.0" layoutY="34.0" mnemonicParsing="false" text="Hints">
+      <Button fx:id="hintBtn" layoutX="262.0" layoutY="34.0" mnemonicParsing="false" onAction="#showHint" text="Hints">
          <font>
             <Font name="Times New Roman" size="18.0" />
          </font>

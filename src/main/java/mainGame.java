@@ -45,7 +45,7 @@ public class mainGame {
         int count = 0;
         for (int adjRow=i-1; adjRow<=i+1;adjRow++){
             for(int adjCol=j-1;adjCol<=j+1;adjCol++){
-                if((adjRow > 0) && (adjRow < gameTiles.length) && (adjCol >= 0) && (adjCol < gameTiles[0].length) && !(adjRow == i && adjCol == j)){
+                if((adjRow >= 0) && (adjRow < gameTiles.length) && (adjCol >= 0) && (adjCol < gameTiles[0].length) && !(adjRow == i && adjCol == j)){
                     if(gameTiles[adjRow][adjCol]==1){
                         count ++;
                     }

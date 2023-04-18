@@ -42,10 +42,14 @@ void loop() {
       noTone(12);
     }  
     if (message=="M"){
-      tone(12, 1000);
-      delay(1000);
-      tone(12, 1000);
-      noTone(12);
+      digitalWrite(13,HIGH);
+      delay(100);
+      digitalWrite(13,LOW);
+      delay(100);
+      digitalWrite(13,HIGH);
+      delay(100);
+      digitalWrite(13,LOW);
+      delay(100); 
     }
   }
 }
